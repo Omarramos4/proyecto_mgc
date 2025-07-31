@@ -12,6 +12,12 @@ return [
     |
     */
 
+    'playground' => [
+        'enabled' => env('APP_ENV') !== 'production', // Solo en desarrollo
+        'route' => '/graphql-playground', // Ruta personalizable
+        'title' => 'Lighthouse Playground', // Título opcional
+    ],
+
     'route' => [
         /*
          * The URI the endpoint responds to, e.g. mydomain.com/graphql.

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('Contrasenia');
             $table->string('CorreoElectronico');
             $table->foreignId('ID_Rol')->constrained('Roles')->onDelete('cascade');
+            $table->foreignId('ID_sucursal')->constrained('Sucursales')->onDelete('cascade');
             $table->tinyInteger('Estado')->default(1); // 1: activo, 0: inactivo
         });
     }

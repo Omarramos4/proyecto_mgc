@@ -1,41 +1,60 @@
-"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
-scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+#Esquemas ---------------------------------------------------------------------------------
+type 
+type Usuario{
+    NombreUsuario:String!
+    NombreCompleto:String!
+    Contrasenia:String!
+    CorreoElectronico:String!
+    ID_Rol:ID!
+    ID_sucursal:ID!
 
-"Indicates what fields are available at the top level of a query operation."
-type Query {
-    "Find a single user by an identifying attribute."
-    user(
-      "Search by primary key."
-      id: ID @eq @rules(apply: ["prohibits:email", "required_without:email"])
-
-      "Search by email address."
-      email: String @eq @rules(apply: ["prohibits:id", "required_without:id", "email"])
-    ): User @find
-
-    "List multiple users."
-    users(
-      "Filters by name. Accepts SQL LIKE wildcards `%` and `_`."
-      name: String @where(operator: "like")
-    ): [User!]! @paginate(defaultCount: 10)
+    rol:Rol @belongsTo
+    sucursal:Sucursal @belongsTo
 }
 
-"Account of a person who uses this application."
-type User {
-    "Unique primary key."
-    id: ID!
+type Departamento{
+    Descripcion:String! 
+}
 
-    "Non-unique name."
-    name: String!
+type Rol{
+    NombreRol:String!
+    Descripcion:String!
+}
 
-    "Unique email address."
-    email: String!
+type Sucursal{
+    NombreSucursal:String!
+    Direccion:String!
+    ContactoPrincipal:String!
+    Telefono:String!
+}
 
-    "When the email was verified."
-    email_verified_at: DateTime
 
-    "When the account was created."
-    created_at: DateTime!
+#Consultas---------------------------------------------------------------------------------
+type Query{
+    usuarios:[Usuario!]! @all
+    usuario(id:ID!):Usuario @find
+}
 
-    "When the account was last updated."
-    updated_at: DateTime!
+#Mutaciones---------------------------------------------------------------------------------
+type Mutation{
+    createUsuario(
+        NombreUsuario: String! @rules(apply: ["min:3", "unique:usuarios,NombreUsuario"])
+        NombreCompleto: String!
+        Contrasenia: String! @rules(apply: ["min:6"])
+        CorreoElectronico: String! @rules(apply: ["email", "unique:usuarios,CorreoElectronico"])
+        ID_Rol: ID! @rules(apply: ["exists:roles,id"]) # Validar que el rol exista
+        ID_Sucursal: ID! @rules(apply: ["exists:sucursales,id"]) # Validar que la sucursal exista
+    ): Usuario @create
+
+    updateUsuario(
+        id: ID!
+        NombreUsuario: String! @rules(apply: ["min:3", "unique:usuarios,NombreUsuario"])
+        NombreCompleto: String!
+        Contrasenia: String! @rules(apply: ["min:6"])
+        CorreoElectronico: String! @rules(apply: ["email", "unique:usuarios,CorreoElectronico"])
+        ID_Rol: ID! @rules(apply: ["exists:roles,id"]) # Validar que el rol exista
+        ID_Sucursal: ID! @rules(apply: ["exists:sucursales,id"]) # Validar que la sucursal exista
+    ): Usuario @update
+
+   
 }

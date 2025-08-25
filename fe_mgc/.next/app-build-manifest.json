@@ -11,18 +11,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
-    "/login/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/login/layout.css",
-      "static/chunks/app/login/layout.js"
-    ],
-    "/login/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/login/page.css",
-      "static/chunks/app/login/page.js"
-    ],
     "/sgc/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -35,35 +23,11 @@
       "static/css/app/sgc/inicio/page.css",
       "static/chunks/app/sgc/inicio/page.js"
     ],
-    "/sgc/dashboard/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/sgc/dashboard/page.css",
-      "static/chunks/app/sgc/dashboard/page.js"
-    ],
     "/sgc/coberturas/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/sgc/coberturas/page.css",
       "static/chunks/app/sgc/coberturas/page.js"
-    ],
-    "/sgc/recursohumano/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/sgc/recursohumano/page.css",
-      "static/chunks/app/sgc/recursohumano/page.js"
-    ],
-    "/sgc/reportes/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/sgc/reportes/page.css",
-      "static/chunks/app/sgc/reportes/page.js"
-    ],
-    "/sgc/configs/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/sgc/configs/page.css",
-      "static/chunks/app/sgc/configs/page.js"
     ]
   }
 }

@@ -1,8 +1,5 @@
 {
-  "/sgc/coberturas/page": "app/sgc/coberturas/page.js",
-  "/login/page": "app/login/page.js",
-  "/sgc/dashboard/page": "app/sgc/dashboard/page.js",
-  "/sgc/recursohumano/page": "app/sgc/recursohumano/page.js",
-  "/sgc/reportes/page": "app/sgc/reportes/page.js",
-  "/sgc/inicio/page": "app/sgc/inicio/page.js"
+  "/page": "app/page.js",
+  "/sgc/inicio/page": "app/sgc/inicio/page.js",
+  "/sgc/coberturas/page": "app/sgc/coberturas/page.js"
 }

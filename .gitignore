@@ -1,0 +1,15 @@
+# Archivos de sistema
+.DS_Store
+.env
+.next/
+/storage/
+/vendor/
+/node_modules/
+npm-debug.log
+yarn-error.log
+.7z
+.pdf
+
+# Archivos de IDE
+.idea/
+.vscode/

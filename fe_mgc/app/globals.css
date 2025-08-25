@@ -1,0 +1,75 @@
+@import "tailwindcss"; /*Importar Tailwind CSS para estilos*/
+@plugin "flowbite-react/plugin/tailwindcss";
+@source "../.flowbite-react/class-list.json";
+
+/* Critical CSS - Estilos que se necesitan inmediatamente */
+body {
+  font-family: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  color: #1f2937;
+  background-color: #111827;
+}
+
+/* Layout básico crítico */
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.flex {
+  display: flex;
+}
+
+.bg-gray-900 {
+  background-color: #111827;
+}
+
+/* Optimizaciones de scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Estilos responsive específicos para tabla de recursos humanos */
+@media screen and (max-width: 1920px) and (min-width: 1024px) {
+  .tabla-recurso-humano {
+    font-size: 0.875rem; /* text-sm */
+  }
+  
+  .tabla-recurso-humano th,
+  .tabla-recurso-humano td {
+    padding: 0.5rem 0.25rem; /* py-2 px-1 */
+  }
+}
+
+/* Animaciones para filas expandibles */
+.row-expansion {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+    transform: translateY(0);
+  }
+}
+
+/* Mejora visual para botones de acción */
+.btn-accion:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+
+
+ 

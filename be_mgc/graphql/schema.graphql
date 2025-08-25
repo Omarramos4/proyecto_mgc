@@ -1,0 +1,466 @@
+# Tipos o modelos --------------------------------------------------------------
+
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+type Area @model(class: "App\\Models\\Area") {
+    id: ID!
+    NombreArea: String!
+    puestos: [Puesto!]! @hasMany(foreignKey: "ID_Area")
+}
+
+type Puesto @model(class: "App\\Models\\Puesto") {
+    id: ID!
+    Descripcion: String!
+    SueldoGeneral: Float!
+    ID_Area: ID!
+
+    area: Area! @belongsTo(foreignKey: "ID_Area")
+    recursosHumanos: [RecursoHumano!]! @hasMany(foreignKey: "ID_Puesto")
+    coberturas: [Cobertura!]! @hasMany(foreignKey: "ID_puesto")
+}
+
+type RecursoHumano @model(class: "App\\Models\\RecursoHumano") {
+    id: ID!
+    Nombres: String!
+    Apellidos: String!
+    DNI: String!
+    CtaBanco: String
+    Origen: String
+    Estado: String!
+    ID_Puesto: ID!
+    ID_Sucursal: ID!
+    Estado: Int
+
+    puesto: Puesto! @belongsTo(foreignKey: "ID_Puesto")
+    sucursal: Sucursal! @belongsTo(foreignKey: "ID_Sucursal")
+
+    coberturas: [Cobertura!]! @hasMany(foreignKey: "ID_cobertura")
+    cubierto: [Cobertura!]! @hasMany(foreignKey: "ID_cubierto")
+    honorarios: [Honorario!]! @hasMany(foreignKey: "ID_recursohumano")
+}
+
+type Sucursal @model(class: "App\\Models\\Sucursal") {
+    id: ID!
+    NombreSucursal: String!
+    Direccion: String
+    ContactoPrincipal: String
+    Telefono: String
+    Estado: Int
+
+    usuarios: [Usuario!]! @hasMany(foreignKey: "ID_sucursal")
+    recursosHumanos: [RecursoHumano!]! @hasMany(foreignKey: "ID_Sucursal")
+}
+
+type Rol @model(class: "App\\Models\\Rol") {
+    id: ID!
+    NombreRol: String!
+    Descripcion: String
+
+    usuarios: [Usuario!]! @hasMany(foreignKey: "ID_Rol")
+}
+
+type Usuario @model(class: "App\\Models\\Usuario") {
+    id: ID!
+    NombreUsuario: String!
+    NombreCompleto: String!
+    CorreoElectronico: String!
+    Estado: String!
+    ID_Rol: ID
+    ID_sucursal: ID
+
+    sucursales: Sucursal @belongsTo(foreignKey: "ID_sucursal")
+    roles: Rol! @belongsTo(foreignKey: "ID_Rol")
+    coberturasSolicitadas: [Cobertura!]! @hasMany(foreignKey: "ID_solicitante")
+
+}
+
+type Motivo @model(class: "App\\Models\\Motivo") {
+    id: ID!
+    Descripcion: String!
+
+    coberturas: [Cobertura!]! @hasMany(foreignKey: "ID_motivo")
+}
+
+type Modalidad @model(class: "App\\Models\\Modalidad") {
+    id: ID!
+    Descripcion: String!
+
+    coberturas: [Cobertura!]! @hasMany(foreignKey: "ID_modalidad")
+}
+
+type Cobertura @model(class: "App\\Models\\Cobertura") {
+    id: ID!
+    ID_solicitante: ID!
+    ID_cobertura: ID!
+    ID_cubierto: ID!
+    ID_puesto: ID!
+    ID_motivo: ID!
+    FechaInicio: String!
+    FechaFin: String!
+    ID_modalidad: ID!
+    Justificacion: String!
+    FechaSolicitud: String!
+    Estado: String!
+
+    solicitante: Usuario! @belongsTo(foreignKey: "ID_solicitante")
+    cobertura: RecursoHumano! @belongsTo(foreignKey: "ID_cobertura")
+    cubierto: RecursoHumano! @belongsTo(foreignKey: "ID_cubierto")
+    puesto: Puesto! @belongsTo(foreignKey: "ID_puesto")
+    motivo: Motivo! @belongsTo(foreignKey: "ID_motivo")
+    modalidad: Modalidad! @belongsTo(foreignKey: "ID_modalidad")
+    archivos: [Archivo!]! @hasMany(foreignKey: "ID_cobertura")
+    honorarios: [Honorario!]! @hasMany(foreignKey: "ID_cobertura")
+
+}
+
+type Configuracion @model(class: "App\\Models\\Configuracion") {
+    id: ID!
+    nombre: String!
+    valor: String!
+    descripcion: String
+}
+
+type TipoArchivo @model(class: "App\\Models\\TipoArchivo") {
+    id: ID!
+    descripcion: String!
+
+    archivos: [Archivo!]! @hasMany(foreignKey: "ID_tipoarchivo")
+}
+
+type Archivo @model(class: "App\\Models\\Archivo") {
+    id: ID!
+    rutaArchivo: String!
+    descripcion: String!
+    ID_cobertura: ID!
+    ID_tipoarchivo: ID
+
+    coberturas: Cobertura! @belongsTo(foreignKey: "ID_cobertura")
+    tipoArchivo: TipoArchivo @belongsTo(foreignKey: "ID_tipoarchivo")
+}
+
+type Honorario @model(class: "App\\Models\\Honorario") {
+    id: ID!
+    ID_recursohumano: ID!
+    ID_cobertura: ID!
+    ISR: Float!
+    ISS: Float!
+    RelojMarcador: Float!
+    totalDeduccion: Float!
+    pagoNeto: Float!
+    fechaHora_honorario: DateTime!
+
+    recursoHumano: RecursoHumano! @belongsTo(foreignKey: "ID_recursohumano")
+    cobertura: Cobertura! @belongsTo(foreignKey: "ID_cobertura")
+}
+
+# Queries o consultas -------------------------------------------------------------
+
+type Query {
+    area(id: ID! @eq): Area @find
+    areas: [Area!]! @all
+
+    puesto(id: ID! @eq): Puesto @find
+    puestos: [Puesto!]! @field(resolver: "App\\GraphQL\\Queries\\PuestosResolver")
+
+    recursoHumano(id: ID! @eq): RecursoHumano @find
+    recursosHumanos: [RecursoHumano!]! @field(resolver: "App\\GraphQL\\Queries\\RecursosHumanosResolver")
+
+    sucursal(id: ID! @eq): Sucursal @find
+    sucursales: [Sucursal!]! @field(resolver: "App\\GraphQL\\Queries\\SucursalesResolver")
+
+    rol(id: ID! @eq): Rol @find
+    roles: [Rol!]! @all
+
+    usuario(id: ID! @eq): Usuario @find
+    usuarios: [Usuario!]! @field(resolver: "App\\GraphQL\\Queries\\UsuariosResolver")
+    
+    # Obtener datos del usuario autenticado
+    me: Usuario @field(resolver: "App\\GraphQL\\Queries\\MeResolver") @guard
+
+    motivo(id: ID! @eq): Motivo @find
+    motivos: [Motivo!]! @all
+
+    modalidad(id: ID! @eq): Modalidad @find
+    modalidades: [Modalidad!]! @all
+
+    cobertura(id: ID! @eq): Cobertura @find
+
+    coberturas: [Cobertura!]! @field(resolver: "App\\GraphQL\\Queries\\CoberturasResolver")
+
+    configuracion(id: ID! @eq): Configuracion @find
+    configuraciones: [Configuracion!]! @all
+    
+    tipoArchivo(id: ID! @eq): TipoArchivo @find
+    tiposArchivos: [TipoArchivo!]! @all
+    
+    archivo(id: ID! @eq): Archivo @find
+    archivos: [Archivo!]! @field(resolver: "App\\GraphQL\\Queries\\ArchivosResolver")
+
+    honorario(id: ID! @eq): Honorario @find
+    honorarios: [Honorario!]! @field(resolver: "App\\GraphQL\\Queries\\HonorariosResolver")
+}
+
+# Mutations o modificaciones ------------------------------------------------------------
+
+type Mutation {
+
+# SE AGREGA @spread PARA QUE RECONOZCA EL INPUT, NO TENERLO PROVOCA ERRORES DE CONVERSIÓN DE ARRAY A STRING
+
+    createArea(input: CreateAreaInput! @spread): Area @create 
+    updateArea(id: ID!, input: UpdateAreaInput! @spread): Area @update
+    #deleteArea(id: ID!): Area @delete
+
+    createPuesto(input: CreatePuestoInput! @spread): Puesto @create
+    updatePuesto(id: ID!, input: UpdatePuestoInput! @spread): Puesto @update
+    #deletePuesto(id: ID!): Puesto @delete
+
+    createRecursoHumano(input: CreateRecursoHumanoInput! @spread): RecursoHumano @create
+    updateRecursoHumano(id: ID!, input: UpdateRecursoHumanoInput! @spread): RecursoHumano @update
+    #deleteRecursoHumano(id: ID!): RecursoHumano @delete
+
+    createSucursal(input: CreateSucursalInput! @spread): Sucursal @create
+    updateSucursal(id: ID!, input: UpdateSucursalInput! @spread): Sucursal @update
+    #deleteSucursal(id: ID!): Sucursal @delete
+
+    createRol(input: CreateRolInput! @spread): Rol @create
+    updateRol(id: ID!, input: UpdateRolInput! @spread): Rol @update
+    #deleteRol(id: ID!): Rol @delete
+
+    createUsuario(input: CreateUsuarioInput! @spread): Usuario @create
+    updateUsuario(id: ID!, input: UpdateUsuarioInput! @spread): Usuario @update
+    #deleteUsuario(id: ID!): Usuario @delete
+
+    createMotivo(input: CreateMotivoInput! @spread): Motivo @create
+    updateMotivo(id: ID!, input: UpdateMotivoInput! @spread): Motivo @update
+    #deleteMotivo(id: ID!): Motivo @delete
+
+    createModalidad(input: CreateModalidadInput! @spread): Modalidad @create
+    updateModalidad(id: ID!, input: UpdateModalidadInput! @spread): Modalidad @update
+    #deleteModalidad(id: ID!): Modalidad @delete
+
+    createCobertura(input: CreateCoberturaInput! @spread): Cobertura @create
+    updateCobertura(id: ID!, input: UpdateCoberturaInput! @spread): Cobertura @update
+    #deleteCobertura(id: ID!): Cobertura @delete
+
+    createConfiguracion(input: CreateConfiguracionInput! @spread): Configuracion @create
+    updateConfiguracion(id: ID!, input: UpdateConfiguracionInput! @spread): Configuracion @update
+    #deleteConfiguracion(id: ID!): Configuracion @delete
+
+    createTipoArchivo(input: CreateTipoArchivoInput! @spread): TipoArchivo @create
+    updateTipoArchivo(id: ID!, input: UpdateTipoArchivoInput! @spread): TipoArchivo @update
+    #deleteTipoArchivo(id: ID!): TipoArchivo @delete
+
+    createArchivo(input: CreateArchivoInput! @spread): Archivo @create
+    updateArchivo(id: ID!, input: UpdateArchivoInput! @spread): Archivo @update
+    #deleteArchivo(id: ID!): Archivo @delete
+
+    createHonorario(input: CreateHonorarioInput! @spread): Honorario @create
+    updateHonorario(id: ID!, input: UpdateHonorarioInput! @spread): Honorario @update
+    #deleteHonorario(id: ID!): Honorario @delete
+
+    # Autenticación y autorización
+    login(input: LoginInput!): AuthPayload @field(resolver: "App\\GraphQL\\Mutations\\LoginResolver")
+    logout: Boolean @field(resolver: "App\\GraphQL\\Mutations\\LogoutResolver") @guard
+}
+
+# Inputs o entradas ----------------------------------------------------------------
+
+input CreateAreaInput {
+    NombreArea: String! 
+}
+
+input UpdateAreaInput {
+    NombreArea: String
+}
+
+input CreatePuestoInput {
+    Descripcion: String!
+    SueldoGeneral: Float!
+    ID_Area: ID
+}
+
+input UpdatePuestoInput {
+    Descripcion: String
+    SueldoGeneral: Float!
+    ID_Area: ID
+}
+
+input CreateRecursoHumanoInput {
+    Nombres: String!
+    Apellidos: String!
+    DNI: String!
+    CtaBanco: String
+    Origen: String
+    Estado: String!
+    ID_Puesto: ID
+    ID_Sucursal: ID
+}
+
+input UpdateRecursoHumanoInput {
+    Nombres: String
+    Apellidos: String
+    DNI: String
+    CtaBanco: String
+    Origen: String
+    Estado: String
+    ID_Puesto: ID
+    ID_Sucursal: ID
+}
+
+input CreateSucursalInput {
+    NombreSucursal: String!
+    Direccion: String
+    ContactoPrincipal: String
+    Telefono: String
+    Estado: Int
+}
+
+input UpdateSucursalInput {
+    NombreSucursal: String
+    Direccion: String
+    ContactoPrincipal: String
+    Telefono: String
+    Estado: Int 
+}
+
+input CreateRolInput {
+    NombreRol: String!
+    Descripcion: String
+}
+
+input UpdateRolInput {
+    NombreRol: String
+    Descripcion: String
+}
+
+input CreateUsuarioInput {
+    NombreUsuario: String!
+    NombreCompleto: String!
+    CorreoElectronico: String!
+    Contrasenia: String!
+    Estado: String!
+    ID_Rol: ID
+    ID_sucursal: ID
+}
+
+input UpdateUsuarioInput {
+    NombreUsuario: String
+    NombreCompleto: String
+    CorreoElectronico: String
+    Contrasenia: String
+    Estado: String
+    ID_Rol: ID
+    ID_sucursal: ID
+}
+
+input CreateMotivoInput {
+    Descripcion: String!
+}
+
+input UpdateMotivoInput {
+    Descripcion: String
+}
+
+input CreateModalidadInput {
+    Descripcion: String!
+}
+
+input UpdateModalidadInput {
+    Descripcion: String
+}
+
+input CreateCoberturaInput {
+    ID_solicitante: ID!
+    ID_cobertura: ID!
+    ID_cubierto: ID!
+    ID_puesto: ID!
+    ID_motivo: ID!
+    FechaInicio: String!
+    FechaFin: String!
+    ID_modalidad: ID!
+    Justificacion: String!
+    FechaSolicitud: String!
+    Estado: String!
+}
+
+input UpdateCoberturaInput {
+    ID_solicitante: ID
+    ID_cobertura: ID
+    ID_cubierto: ID
+    ID_puesto: ID
+    ID_motivo: ID
+    FechaInicio: String
+    FechaFin: String
+    ID_modalidad: ID
+    Justificacion: String
+    FechaSolicitud: String
+    Estado: String
+}
+
+input CreateConfiguracionInput {
+    nombre: String!
+    valor: String!
+    descripcion: String
+}
+
+input UpdateConfiguracionInput {
+    nombre: String
+    valor: String
+    descripcion: String
+}
+
+input CreateTipoArchivoInput {
+    descripcion: String!
+}
+
+input UpdateTipoArchivoInput {
+    descripcion: String
+}
+
+input CreateArchivoInput {
+    rutaArchivo: String!
+    descripcion: String!
+    ID_cobertura: ID!
+    ID_tipoarchivo: ID
+}
+
+input UpdateArchivoInput {
+    rutaArchivo: String
+    descripcion: String
+    ID_cobertura: ID
+    ID_tipoarchivo: ID
+}
+
+input CreateHonorarioInput {
+    ID_recursohumano: ID!
+    ID_cobertura: ID!
+    ISR: Float!
+    ISS: Float!
+    RelojMarcador: Float!
+    totalDeduccion: Float!
+    pagoNeto: Float!
+    fechaHora_honorario: DateTime! @rules(apply: ["date"])
+}
+
+input UpdateHonorarioInput {
+    ID_recursohumano: ID
+    ID_cobertura: ID
+    ISR: Float
+    ISS: Float
+    RelojMarcador: Float
+    totalDeduccion: Float
+    pagoNeto: Float
+    fechaHora_honorario: DateTime
+}
+
+# Autenticación y autorización -----------------------------------------------------
+type AuthPayload { #Aqui se define el payload de la autenticación, es el token que se genera al iniciar sesión
+    token: String!
+    user: Usuario!
+    expiresAt: String
+}
+
+input LoginInput { #Aqui se define el input de la autenticación, es el usuario y contraseña que se envían al iniciar sesión
+    NombreUsuario: String!
+    Contrasenia: String!
+}

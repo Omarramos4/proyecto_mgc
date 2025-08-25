@@ -1,0 +1,14 @@
+{
+  "name": "clean-build",
+  "version": "1.0.0",
+  "description": "Script para limpiar el build y resolver warnings de GraphQL",
+  "scripts": {
+    "clean": "rimraf .next && rimraf node_modules/.cache",
+    "clean:all": "rimraf .next && rimraf node_modules/.cache && npm install",
+    "build:clean": "npm run clean && npm run build",
+    "dev:clean": "npm run clean && npm run dev"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.0"
+  }
+}

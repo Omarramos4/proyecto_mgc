@@ -23,6 +23,12 @@
       "static/css/app/sgc/inicio/page.css",
       "static/chunks/app/sgc/inicio/page.js"
     ],
+    "/sgc/dashboard/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/sgc/dashboard/page.css",
+      "static/chunks/app/sgc/dashboard/page.js"
+    ],
     "/sgc/coberturas/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",

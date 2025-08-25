@@ -8,6 +8,7 @@ const FloatingActionButton = () => {
     setIsOpen(!isOpen);
   };
 
+
   const fabOptions = [
     {
       icon: (
@@ -17,7 +18,9 @@ const FloatingActionButton = () => {
         </svg>
       ),
       label: 'Nueva Cobertura',
-      action: () => {} // TODO: Implementar navegación a nueva cobertura
+      color: 'bg-gradient-to-br from-red-500 to-yellow-400 shadow-lg',
+      tooltipColor: 'bg-gray-900 text-white',
+      action: () => {}
     },
     {
       icon: (
@@ -26,7 +29,9 @@ const FloatingActionButton = () => {
         </svg>
       ),
       label: 'Nuevo R.H.',
-      action: () => {} // TODO: Implementar navegación a nuevo recurso humano
+      color: 'bg-gradient-to-br from-blue-600 to-cyan-400 shadow-lg',
+      tooltipColor: 'bg-gray-900 text-white',
+      action: () => {}
     },
     {
       icon: (
@@ -35,9 +40,12 @@ const FloatingActionButton = () => {
         </svg>
       ),
       label: 'Generar Reporte',
-      action: () => {} // TODO: Implementar generación de reportes
+      color: 'bg-gradient-to-br from-green-500 to-lime-400 shadow-lg',
+      tooltipColor: 'bg-gray-900 text-white',
+      action: () => {}
     }
   ];
+
 
   return (
     <div className="fixed bottom-6 right-6 z-[10]">
@@ -48,22 +56,31 @@ const FloatingActionButton = () => {
           onClick={() => setIsOpen(false)}
         />
       )}
-      
-      {/* Opciones del FAB */}
-      <div className={`flex flex-col space-y-3 mb-4 transition-all duration-300 ease-in-out ${
-        isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'
-      }`}>
+
+      <div className={`flex flex-col-reverse items-end mb-4 ${isOpen ? '' : 'pointer-events-none'}`}
+        style={{ position: 'relative' }}>
         {fabOptions.map((option, index) => (
-          <div key={index} className="flex items-center space-x-3">
-            <span className="bg-white text-gray-700 px-3 py-2 rounded-lg shadow-lg text-sm font-medium whitespace-nowrap">
+          <div key={index} className="relative flex items-center group"
+            style={{
+              transition: 'opacity 0.3s, transform 0.3s',
+              opacity: isOpen ? 1 : 0,
+              transform: isOpen ? `translateY(-${(index + 1) * 30}px) scale(1)` : 'translateY(0) scale(0.7)',
+              transitionDelay: isOpen ? `${index * 120 + 100}ms` : '0ms',
+              zIndex: 10 - index
+            }}
+          >
+            {/* Tooltip al hover */}
+            <span className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full px-3 py-2 rounded-lg shadow-lg text-sm font-medium whitespace-nowrap ${option.tooltipColor} transition-all duration-200 opacity-0 group-hover:opacity-100 group-hover:visible invisible`}
+              style={{ minWidth: '120px' }}>
               {option.label}
             </span>
             <button
               onClick={option.action}
-              className="w-12 h-12 bg-slate-600 hover:bg-slate-700 text-white rounded-full shadow-lg transition-all duration-200 flex items-center justify-center transform hover:scale-110"
+              className={`w-12 h-12 ${option.color} text-white rounded-full shadow-lg transition-all duration-200 flex items-center justify-center transform hover:scale-110`}
               style={{
-                animationDelay: `${index * 100}ms`,
-                animation: isOpen ? 'fadeInUp 0.3s ease-out forwards' : 'none'
+                transition: 'box-shadow 0.2s, background 0.2s, transform 0.3s',
+                animation: isOpen ? `fabPop 0.4s cubic-bezier(.17,.67,.83,.67) both` : 'none',
+                animationDelay: isOpen ? `${index * 120 + 100}ms` : '0ms',
               }}
             >
               {option.icon}
@@ -75,7 +92,7 @@ const FloatingActionButton = () => {
       {/* Botón principal del FAB */}
       <button
         onClick={toggleFab}
-        className={`w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-300 flex items-center justify-center transform hover:scale-110 z-[10] relative ${
+        className={`w-14 h-14 bg-blue-800 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-300 flex items-center justify-center transform hover:scale-110 z-[10] relative ${
           isOpen ? 'rotate-45' : 'rotate-0'
         }`}
       >
@@ -95,14 +112,18 @@ const FloatingActionButton = () => {
       </button>
 
       <style jsx>{`
-        @keyframes fadeInUp {
-          from {
+        @keyframes fabPop {
+          0% {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(20px) scale(0.7);
           }
-          to {
+          60% {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(-8px) scale(1.1);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
           }
         }
       `}</style>

@@ -11,7 +11,7 @@ import Header from '../../../componentes/Header';
 import FloatingActionButton from '../../../componentes/FloatingActionButton';
 import { useSidebar } from '../../context/SidebarContext';
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import SucursalSelector from './SucursalSelector';
+import SucursalSelector from '../../../componentes/SucursalSelector';
 import { useSucursalFilterMemo } from '../../hooks/useSucursalFilterMemo';
 
 

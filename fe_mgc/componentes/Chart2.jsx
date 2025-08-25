@@ -3,13 +3,12 @@ import React, { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 import { useHonorariosChart } from '../app/hooks/useHonorariosChart';
 
-
-const Chart2 = React.memo(function Chart2({ isSidebarExpanded }) {
+const Chart2 = React.memo(function Chart2({ isSidebarExpanded, selectedSucursal }) {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   
-  // Usar el hook personalizado para obtener los datos
-  const { chartData, loading, error } = useHonorariosChart();
+  // Usar el hook personalizado para obtener los datos filtrados por sucursal
+  const { chartData, loading, error } = useHonorariosChart(selectedSucursal);
 
   // Efecto para crear/actualizar el gráfico
   useEffect(() => {

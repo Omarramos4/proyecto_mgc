@@ -221,7 +221,7 @@ export default function RecursoHumano() {
                 </svg>
               </div>
               <input 
-                type="search" 
+                type="text" 
                 className={`block w-full lg:w-72 p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 relative z-[3] ${
                   isClient 
                     ? 'bg-gray-50 dark:bg-gray-700' 

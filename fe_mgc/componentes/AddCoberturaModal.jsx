@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import AddRHModal from './AddRHModal';
 import { useSuspenseQuery, useMutation } from '@apollo/client';
 import { 
   GET_COBERTURA_FORM_DATA 
@@ -28,6 +29,9 @@ const AddCoberturaModal = ({ show, onClose, onSuccess, onError }) => {
 
   const [errors, setErrors] = useState({});
   const [archivos, setArchivos] = useState([]);
+  const [showAddRHModal, setShowAddRHModal] = useState(false);
+  const [nuevoEmpleado, setNuevoEmpleado] = useState(null);
+  const [addRHTarget, setAddRHTarget] = useState(null); // 'coberturaId' o 'cubiertaId'
   
   // Obtener datos del usuario actual
   const { usuario } = useUserData();
@@ -39,12 +43,16 @@ const AddCoberturaModal = ({ show, onClose, onSuccess, onError }) => {
   // Filtrar recursos humanos por sucursal del usuario logueado
   const recursosHumanosFiltrados = useMemo(() => {
     if (!data?.recursosHumanos || !sucursalId) return [];
-    
-    return data.recursosHumanos.filter(recurso => {
+    let lista = data.recursosHumanos.filter(recurso => {
       const recursoSucursalId = recurso?.ID_Sucursal?.toString() || recurso?.sucursal?.id?.toString();
       return recursoSucursalId === sucursalId.toString();
     });
-  }, [data?.recursosHumanos, sucursalId]);
+    // Si se acaba de crear un nuevo empleado, añadirlo temporalmente a la lista
+    if (nuevoEmpleado) {
+      lista = [nuevoEmpleado, ...lista];
+    }
+    return lista;
+  }, [data?.recursosHumanos, sucursalId, nuevoEmpleado]);
 
   // Mutation para crear cobertura
   const [createCobertura] = useMutation(CREATE_COBERTURA, {
@@ -60,11 +68,16 @@ const AddCoberturaModal = ({ show, onClose, onSuccess, onError }) => {
   };
 
   const handleInputChange = (field, value) => {
+    // Si selecciona "Añadir nuevo empleado" en coberturaId o cubiertaId, abrir el modal y no cambiar el valor
+    if ((field === 'coberturaId' || field === 'cubiertaId') && value === 'add_new') {
+      setAddRHTarget(field);
+      setShowAddRHModal(true);
+      return;
+    }
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
-
     // Limpiar error cuando el usuario cambia el valor
     if (errors[field]) {
       setErrors(prev => ({
@@ -321,7 +334,7 @@ const AddCoberturaModal = ({ show, onClose, onSuccess, onError }) => {
     recurso.id !== formData.coberturaId
   ) || [];
 
-  const SelectField = ({ name, label, value, onChange, options, loading, required, disabled }) => (
+  const SelectField = ({ name, label, value, onChange, options, loading, required, disabled, addNewOption }) => (
     <div>
       <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
         {label} {required && <span className="text-red-500">*</span>}
@@ -335,8 +348,11 @@ const AddCoberturaModal = ({ show, onClose, onSuccess, onError }) => {
         <option value="">
           {loading ? 'Cargando...' : `Seleccione ${label.toLowerCase()}`}
         </option>
-        {options.map((option) => (
-          <option key={option.id} value={option.id}>
+        {addNewOption && (
+          <option value="add_new">➕ Añadir nuevo empleado</option>
+        )}
+        {options.map((option, idx) => (
+          <option key={option.id || idx} value={option.id}>
             {option.label}
           </option>
         ))}
@@ -352,201 +368,223 @@ const AddCoberturaModal = ({ show, onClose, onSuccess, onError }) => {
   }
 
   return (
-    <div 
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
-      style={{ backdropFilter: 'blur(8px)' }}
-    >
-      <div className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-lg shadow dark:bg-gray-700 flex flex-col">
-        {/* Header fijo */}
-        <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600 bg-white dark:bg-gray-700 sticky top-0 z-10">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Realizar Nueva Cobertura
-          </h3>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-          >
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 14 14">
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-            </svg>
-          </button>
-        </div>
-        
-        {/* Contenido scrolleable */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Empleado que realizará la cobertura */}
-              <SelectField
-                name="coberturaId"
-                label="Empleado que Realizará la Cobertura"
-                value={formData.coberturaId}
-                onChange={handleInputChange}
-                options={recursosHumanosFiltrados?.map(recurso => ({ 
-                  id: recurso.id, 
-                  label: `${recurso.Nombres} ${recurso.Apellidos} - ${recurso.DNI} (${recurso.puesto?.Descripcion || 'Sin puesto'})` 
-                })) || []}
-                loading={dataLoading}
-                required={true}
-              />
-              
-              {/* Empleado a cubrir */}
-              <SelectField
-                name="cubiertaId"
-                label="Empleado a Cubrir"
-                value={formData.cubiertaId}
-                onChange={handleInputChange}
-                options={recursosDisponiblesParaCubrir.map(recurso => ({ 
-                  id: recurso.id, 
-                  label: `${recurso.Nombres} ${recurso.Apellidos} - ${recurso.DNI} (${recurso.puesto?.Descripcion || 'Sin puesto'})` 
-                })) || []}
-                loading={dataLoading}
-                required={true}
-                disabled={!formData.coberturaId}
-              />
-              
-              {/* Puesto a cubrir */}
-              <SelectField
-                name="puestoId"
-                label="Puesto a Cubrir"
-                value={formData.puestoId}
-                onChange={handleInputChange}
-                options={data?.puestos?.map(puesto => ({ 
-                  id: puesto.id, 
-                  label: `${puesto.Descripcion} - ${puesto.area?.NombreArea || 'Sin área'}` 
-                })) || []}
-                loading={dataLoading}
-                required={true}
-              />
-              
-              {/* Motivo de la cobertura */}
-              <SelectField
-                name="motivoId"
-                label="Motivo de la Cobertura"
-                value={formData.motivoId}
-                onChange={handleInputChange}
-                options={data?.motivos?.map(motivo => ({ 
-                  id: motivo.id, 
-                  label: motivo.Descripcion 
-                })) || []}
-                loading={dataLoading}
-                required={true}
-              />
-              
-              {/* Modalidad de cobertura */}
-              <SelectField
-                name="modalidadId"
-                label="Modalidad de Cobertura"
-                value={formData.modalidadId}
-                onChange={handleInputChange}
-                options={data?.modalidades?.map(modalidad => ({ 
-                  id: modalidad.id, 
-                  label: modalidad.Descripcion 
-                })) || []}
-                loading={dataLoading}
-                required={true}
-              />
-
-              {/* Fecha de inicio */}
-              <div>
-                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Fecha de Inicio <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={formData.fechaInicio}
-                  onChange={(e) => handleInputChange('fechaInicio', e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  className={`bg-gray-50 border ${errors.fechaInicio ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white`}
-                  required
-                />
-                {errors.fechaInicio && (
-                  <p className="mt-1 text-sm text-red-500">{errors.fechaInicio}</p>
-                )}
-              </div>
-
-              {/* Fecha de fin */}
-              <div>
-                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Fecha de Fin <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={formData.fechaFin}
-                  onChange={(e) => handleInputChange('fechaFin', e.target.value)}
-                  min={formData.fechaInicio || new Date().toISOString().split('T')[0]}
-                  className={`bg-gray-50 border ${errors.fechaFin ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white`}
-                  required
-                />
-                {errors.fechaFin && (
-                  <p className="mt-1 text-sm text-red-500">{errors.fechaFin}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Justificación - Campo de texto amplio */}
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Justificación <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                value={formData.justificacion}
-                onChange={(e) => handleInputChange('justificacion', e.target.value)}
-                rows={4}
-                className={`bg-gray-50 border ${errors.justificacion ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white`}
-                placeholder="Ingrese la justificación para esta cobertura..."
-                required
-              />
-              {errors.justificacion && (
-                <p className="mt-1 text-sm text-red-500">{errors.justificacion}</p>
-              )}
-            </div>
-
-            {/* Sección de archivos */}
-            <div className="border-t pt-6">
-              <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                Documentos de Soporte
-              </h4>
-              
-              {/* Componente de subida de archivos */}
-              <FileUploadSection 
-                tiposArchivos={data?.tiposArchivos || []}
-                onFileSelect={handleFileSelect}
-                archivos={archivos}
-                onRemoveFile={handleRemoveFile}
-                loading={dataLoading}
-              />
-            </div>
-
+    <>
+      <div 
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+        style={{ backdropFilter: 'blur(8px)' }}
+      >
+        <div className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-lg shadow dark:bg-gray-700 flex flex-col">
+          {/* Header fijo */}
+          <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600 bg-white dark:bg-gray-700 sticky top-0 z-10">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Realizar Nueva Cobertura
+            </h3>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+            >
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 14 14">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+              </svg>
+            </button>
           </div>
           
-          {/* Footer fijo */}
-          <div className="flex flex-col sm:flex-row items-center p-6 space-y-2 sm:space-y-0 sm:space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600 bg-white dark:bg-gray-700">
-            <button
-              onClick={handleSave}
-              disabled={isLoading}
-              className={`w-full sm:w-auto text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center focus:ring-4 focus:outline-none ${
-                isLoading 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
-              }`}
-            >
-              Realizar Cobertura
-            </button>
-            <button
-              onClick={handleClose}
-              disabled={isLoading}
-              className={`w-full sm:w-auto text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600 ${
-                isLoading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-            >
-              Cancelar
-            </button>
+          {/* Contenido scrolleable */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Empleado que realizará la cobertura */}
+                <SelectField
+                  name="coberturaId"
+                  label="Empleado que Realizará la Cobertura"
+                  value={formData.coberturaId}
+                  onChange={handleInputChange}
+                  options={recursosHumanosFiltrados?.map(recurso => ({ 
+                    id: recurso.id, 
+                    label: `${recurso.Nombres} ${recurso.Apellidos} - ${recurso.DNI} (${recurso.puesto?.Descripcion || 'Sin puesto'})` 
+                  })) || []}
+                  loading={dataLoading}
+                  required={true}
+                  addNewOption={true}
+                />
+                
+                {/* Empleado a cubrir */}
+                <SelectField
+                  name="cubiertaId"
+                  label="Empleado a Cubrir"
+                  value={formData.cubiertaId}
+                  onChange={handleInputChange}
+                  options={recursosDisponiblesParaCubrir.map(recurso => ({ 
+                    id: recurso.id, 
+                    label: `${recurso.Nombres} ${recurso.Apellidos} - ${recurso.DNI} (${recurso.puesto?.Descripcion || 'Sin puesto'})` 
+                  })) || []}
+                  loading={dataLoading}
+                  required={true}
+                  disabled={!formData.coberturaId}
+                  addNewOption={true}
+                />
+                
+                {/* Puesto a cubrir */}
+                <SelectField
+                  name="puestoId"
+                  label="Puesto a Cubrir"
+                  value={formData.puestoId}
+                  onChange={handleInputChange}
+                  options={data?.puestos?.map(puesto => ({ 
+                    id: puesto.id, 
+                    label: `${puesto.Descripcion} - ${puesto.area?.NombreArea || 'Sin área'}` 
+                  })) || []}
+                  loading={dataLoading}
+                  required={true}
+                />
+                
+                {/* Motivo de la cobertura */}
+                <SelectField
+                  name="motivoId"
+                  label="Motivo de la Cobertura"
+                  value={formData.motivoId}
+                  onChange={handleInputChange}
+                  options={data?.motivos?.map(motivo => ({ 
+                    id: motivo.id, 
+                    label: motivo.Descripcion 
+                  })) || []}
+                  loading={dataLoading}
+                  required={true}
+                />
+                
+                {/* Modalidad de cobertura */}
+                <SelectField
+                  name="modalidadId"
+                  label="Modalidad de Cobertura"
+                  value={formData.modalidadId}
+                  onChange={handleInputChange}
+                  options={data?.modalidades?.map(modalidad => ({ 
+                    id: modalidad.id, 
+                    label: modalidad.Descripcion 
+                  })) || []}
+                  loading={dataLoading}
+                  required={true}
+                />
+
+                {/* Fecha de inicio */}
+                <div>
+                  <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Fecha de Inicio <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.fechaInicio}
+                    onChange={(e) => handleInputChange('fechaInicio', e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className={`bg-gray-50 border ${errors.fechaInicio ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white`}
+                    required
+                  />
+                  {errors.fechaInicio && (
+                    <p className="mt-1 text-sm text-red-500">{errors.fechaInicio}</p>
+                  )}
+                </div>
+
+                {/* Fecha de fin */}
+                <div>
+                  <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Fecha de Fin <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.fechaFin}
+                    onChange={(e) => handleInputChange('fechaFin', e.target.value)}
+                    min={formData.fechaInicio || new Date().toISOString().split('T')[0]}
+                    className={`bg-gray-50 border ${errors.fechaFin ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white`}
+                    required
+                  />
+                  {errors.fechaFin && (
+                    <p className="mt-1 text-sm text-red-500">{errors.fechaFin}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Justificación - Campo de texto amplio */}
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Justificación <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={formData.justificacion}
+                  onChange={(e) => handleInputChange('justificacion', e.target.value)}
+                  rows={4}
+                  className={`bg-gray-50 border ${errors.justificacion ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white`}
+                  placeholder="Ingrese la justificación para esta cobertura..."
+                  required
+                />
+                {errors.justificacion && (
+                  <p className="mt-1 text-sm text-red-500">{errors.justificacion}</p>
+                )}
+              </div>
+
+              {/* Sección de archivos */}
+              <div className="border-t pt-6">
+                <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                  Documentos de Soporte
+                </h4>
+                {/* Componente de subida de archivos */}
+                <FileUploadSection 
+                  tiposArchivos={data?.tiposArchivos || []}
+                  onFileSelect={handleFileSelect}
+                  archivos={archivos}
+                  onRemoveFile={handleRemoveFile}
+                  loading={dataLoading}
+                />
+              </div>
+
+            </div>
+            
+            {/* Footer fijo */}
+            <div className="flex flex-col sm:flex-row items-center p-6 space-y-2 sm:space-y-0 sm:space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600 bg-white dark:bg-gray-700">
+              <button
+                onClick={handleSave}
+                disabled={isLoading}
+                className={`w-full sm:w-auto text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center focus:ring-4 focus:outline-none ${
+                  isLoading 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+                }`}
+              >
+                Realizar Cobertura
+              </button>
+              <button
+                onClick={handleClose}
+                disabled={isLoading}
+                className={`w-full sm:w-auto text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600 ${
+                  isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      {/* Modal para añadir nuevo empleado */}
+      {showAddRHModal && (
+        <AddRHModal
+          show={showAddRHModal}
+          onClose={() => {
+            setShowAddRHModal(false);
+            setAddRHTarget(null);
+          }}
+          onSave={(empleado) => {
+            setNuevoEmpleado(empleado);
+            setFormData(prev => ({
+              ...prev,
+              [addRHTarget]: empleado.id
+            }));
+            setShowAddRHModal(false);
+            setAddRHTarget(null);
+          }}
+        />
+      )}
+    </>
   );
 };
 

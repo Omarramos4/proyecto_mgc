@@ -1,7 +1,8 @@
 'use client';
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { GET_AREAS, GET_PUESTOS } from '../app/graphql/operations/catalogos';
+import { CREATE_RECURSO_HUMANO } from '../app/graphql/operations/recursosHumanos';
 import { useNotification } from './Notification';
 import { useUserData, useUserSucursal } from '../lib/user-hooks';
 
@@ -23,6 +24,9 @@ const AddRHModal = ({ show, onClose, onSave }) => {
     ctaBanco: '',
     origen: ''
   });
+
+  // Mutación para crear recurso humano
+  const [createRecursoHumano] = useMutation(CREATE_RECURSO_HUMANO);
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -155,14 +159,25 @@ const AddRHModal = ({ show, onClose, onSave }) => {
           ID_Puesto: formData.puestoId,
           ID_Sucursal: formData.sucursalId
         };
-        
-        await onSave(dataToSave);
-        
+
+        // Guardar en la base de datos usando la mutación
+        const { data } = await createRecursoHumano({
+          variables: {
+            input: dataToSave
+          }
+        });
+
+        // Obtener el empleado creado (ajusta según la respuesta de tu API)
+        const empleadoCreado = data?.createRecursoHumano;
+        if (!empleadoCreado) throw new Error('No se pudo crear el empleado');
+
+        // Llamar al callback con el empleado creado
+        await onSave(empleadoCreado);
+
         // Cerrar modal 
         handleClose();
       } catch (error) {
         console.error('Error al guardar empleado:', error);
-        // Solo mostrar error en el modal, el éxito se maneja en el padre
         showNotification('Error al agregar empleado. Por favor, inténtelo nuevamente.', 'error', {
           title: '¡Error!',
           details: 'Revise los datos ingresados y la conexión al servidor'
@@ -171,7 +186,7 @@ const AddRHModal = ({ show, onClose, onSave }) => {
         setIsLoading(false);
       }
     }
-  }, [formData, onSave, showNotification, validateForm, handleClose]);
+  }, [formData, onSave, showNotification, validateForm, handleClose, createRecursoHumano]);
 
   const SelectField = ({ name, label, value, onChange, options, loading, required = false, disabled = false, error = null }) => (
     <div>

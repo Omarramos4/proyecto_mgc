@@ -14,6 +14,7 @@ class AreasSeeder extends Seeder
     {
         DB::table('Areas')->insert([
             ['NombreArea' => 'Área Clínica'],
+            ['NombreArea' => 'Área Médica'],
         ]);
     }
 }

@@ -36,14 +36,14 @@ const AddRHModal = ({ show, onClose, onSave }) => {
   const { sucursalId, sucursalNombre } = useUserSucursal();
 
   // Actualizar el formulario cuando se carguen los datos del usuario
-  useEffect(() => {
-    if (currentUser && sucursalId) {
-      setFormData(prev => ({
-        ...prev,
-        sucursalId: sucursalId
-      }));
-    }
-  }, [currentUser, sucursalId]);
+    useEffect(() => {
+      if (currentUser && sucursalId) {
+        setFormData(prev => ({
+          ...prev,
+          sucursalId: typeof sucursalId === 'object' ? sucursalId.id : sucursalId
+        }));
+      }
+    }, [currentUser, sucursalId]);
 
   // Filtrar puestos por área seleccionada
   const puestosFiltrados = useMemo(() => {
@@ -156,9 +156,13 @@ const AddRHModal = ({ show, onClose, onSave }) => {
           CtaBanco: formData.ctaBanco || null,
           Origen: formData.origen || null,
           Estado: "1", // Estado automáticamente activo
-          ID_Puesto: formData.puestoId,
-          ID_Sucursal: formData.sucursalId
+          ID_Puesto: String(formData.puestoId),
+          ID_Sucursal: String(formData.sucursalId)
         };
+
+        // LOGS para depuración
+        console.log('formData antes de guardar:', formData);
+        console.log('Input enviado a la mutación:', dataToSave);
 
         // Guardar en la base de datos usando la mutación
         const { data } = await createRecursoHumano({

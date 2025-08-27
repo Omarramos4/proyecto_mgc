@@ -4,16 +4,16 @@ import "../../globals.css";
 
 //Componentes
 import Carddetails from '../../../componentes/Carddetails';
-import Chart1 from '../../../componentes/Chart1';
-import Chart2 from '../../../componentes/Chart2';
-import Chart3 from '../../../componentes/Chart3';
+import ChartComponent from '../../../componentes/ChartComponent';
+import { getCoberturasPorArea, getCoberturasPorSucursal, getHonorariosPorMes } from '../../../utils/chartUtils';
 import Header from '../../../componentes/Header';
 import FloatingActionButton from '../../../componentes/FloatingActionButton';
 import { useSidebar } from '../../context/SidebarContext';
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo} from 'react';
 import SucursalSelector from '../../../componentes/SucursalSelector';
 import { useSucursalFilterMemo } from '../../hooks/useSucursalFilterMemo';
-
+import { useHonorariosChart } from '../../hooks/useHonorariosChart';
+import TablaUltimasCoberturas from '../../../componentes/TablaUltimasCoberturas';
 
 //DATOS
 import { useSuspenseQuery } from '@apollo/client';
@@ -49,6 +49,32 @@ export default function dashboard() {
   const coberturasRechazadas = estadisticas.rechazadas;
   const coberturasPendientes = estadisticas.pendientes;
   const coberturasAutorizadas = estadisticas.autorizadas;
+
+  // Datos para los charts
+  // Chart de Honorarios (line)
+  const honorariosChart = useHonorariosChart(selectedSucursal);
+  const honorariosData = getHonorariosPorMes(honorariosChart.chartData);
+  const honorariosLoading = honorariosChart.loading;
+  const honorariosError = honorariosChart.error;
+  const honorariosExtra = honorariosChart.chartData && honorariosChart.chartData.totalGeneral ? (
+    <>
+      <span className="font-semibold">Total General: </span>
+      L{honorariosChart.chartData.totalGeneral.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+      {honorariosChart.chartData.promedioMensual && (
+        <>
+          <br/>
+          <span className="ml-4 font-semibold">Promedio Mensual: </span>
+          L{honorariosChart.chartData.promedioMensual.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </>
+      )}
+    </>
+  ) : null;
+
+  // Chart de Coberturas por Área (bar)
+  const coberturasPorAreaData = getCoberturasPorArea(filteredCoberturas);
+
+  // Chart de Coberturas por Sucursal (doughnut)
+  const coberturasPorSucursalData = getCoberturasPorSucursal(filteredCoberturas);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowWelcome(false), 2500);
@@ -87,10 +113,42 @@ export default function dashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 mt-2 md:grid-cols-3 gap-4">
-        <Chart2 isSidebarExpanded={isSidebarExpanded} selectedSucursal={selectedSucursal} />
-        <Chart1 isSidebarExpanded={isSidebarExpanded} coberturas={filteredCoberturas} />
-        <Chart3 isSidebarExpanded={isSidebarExpanded} coberturas={filteredCoberturas} />
+  <TablaUltimasCoberturas coberturas={coberturas} />
+
+      <div className="grid grid-cols-1 mt-2 md:grid-cols-4 gap-4">
+        <ChartComponent
+          type="bar"
+          data={honorariosData}
+          title="Honorarios Netos Totales por Mes"
+          loading={honorariosLoading}
+          error={honorariosError}
+          emptyMessage="No hay datos disponibles"
+          extraInfo={honorariosExtra}
+        />
+        <ChartComponent
+          type="bar"
+          data={coberturasPorAreaData}
+          title="Coberturas por Área"
+          loading={false}
+          error={null}
+          emptyMessage="No hay datos disponibles"
+        />
+        <ChartComponent
+          type="line"
+          data={coberturasPorSucursalData}
+          title="Coberturas por Mes"
+          loading={false}
+          error={null}
+          emptyMessage="No hay datos disponibles"
+        />
+        <ChartComponent
+          type="doughnut"
+          data={coberturasPorSucursalData}
+          title="Coberturas por Sucursal"
+          loading={false}
+          error={null}
+          emptyMessage="No hay datos disponibles"
+        />
       </div>
 
       

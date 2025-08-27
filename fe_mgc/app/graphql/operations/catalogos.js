@@ -3,7 +3,6 @@ export const GET_CONFIGURACIONES = gql`
   query GetConfiguraciones {
     configuraciones {
       id
-      clave
       valor
       descripcion
     }

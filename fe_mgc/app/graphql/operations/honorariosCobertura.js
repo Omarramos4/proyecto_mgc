@@ -11,6 +11,14 @@ export const GET_COBERTURA_DETALLES = gql`
       cubierto {
         id
       }
+      honorarios {
+        ISR
+        ISS
+        RelojMarcador
+        totalDeduccion
+        pagoNeto
+        fechaHora_honorario
+      }
     }
   }
 `;

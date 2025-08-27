@@ -191,9 +191,13 @@ export const COBERTURA_FULL_FRAGMENT = gql`
     }
 
     honorarios {
-      id
-      pagoNeto
-      fechaHora_honorario
+  id
+  ISR
+  ISS
+  RelojMarcador
+  totalDeduccion
+  pagoNeto
+  fechaHora_honorario
     }
   }
 `;

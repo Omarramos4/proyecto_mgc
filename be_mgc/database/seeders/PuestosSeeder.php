@@ -13,7 +13,7 @@ class PuestosSeeder extends Seeder
     public function run(): void
     {
         DB::table('Puestos')->insert([
-            ['Descripcion' => 'Licencia en Enfermería','SueldoGeneral'=>15500.00, 'ID_Area' => 1],
+            ['Descripcion' => 'Licenciado en Enfermería','SueldoGeneral'=>15500.00, 'ID_Area' => 1],
             ['Descripcion' => 'Médico General', 'SueldoGeneral'=>5666.66, 'ID_Area' => 1],
             ['Descripcion' => 'Médico Anestesiólogo', 'SueldoGeneral'=>30000.00, 'ID_Area' => 1],
             ['Descripcion' => 'Cirujano General', 'SueldoGeneral'=>30000.00, 'ID_Area' => 1],

@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useMemo, useCallback } from 'react';
 import RevisarCoberturaModal from './RevisarCoberturaModal';
-import PagarCoberturaModal from './PagarCoberturaModal';
+import PagarCoberturaModal from './PagoCoberturaModal';
 import { getEstadoInfo, formatDate } from '../utils/coberturasUtils';
 import ActionButtons from './ActionButtons';
 import CoberturaCard from './CoberturaCard';

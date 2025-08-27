@@ -9,11 +9,10 @@ import { useFileViewer } from '../app/hooks/useFileViewer';
 import { useRevisionFiles } from '../app/hooks/useRevisionFiles';
 
 import Notification from './Notification';
-import ArchivosAdjuntos from './ArchivosAdjuntos';
-import CoberturaDetails from './CoberturaDetails';
 import FileViewer from './FileViewer';
 import AprobacionCobertura from './AprobacionCobertura';
 import RechazoCobertura from './RechazoCobertura';
+import HonorariosCobertura from './HonorariosCobertura';
 
 
 
@@ -24,9 +23,7 @@ const RevisarCoberturaModal = ({ show, onClose, coberturaId }) => {
     // Hook para visor de archivos
     const {
       selectedFile,
-      setSelectedFile,
       showFileViewer,
-      setShowFileViewer,
       openFileViewer,
       closeFileViewer
     } = useFileViewer();
@@ -306,6 +303,10 @@ const RevisarCoberturaModal = ({ show, onClose, coberturaId }) => {
                     </p>
                   </div>
                 </div>
+                {/* Honorarios - solo si la cobertura está finalizada/aprobada y existe honorario */}
+                {(cobertura.Estado?.toLowerCase() === 'aprobado' || cobertura.Estado?.toLowerCase() === 'finalizada') && Array.isArray(cobertura.honorarios) && cobertura.honorarios.length === 1 && (
+                  <HonorariosCobertura honorario={cobertura.honorarios[0]} formatDate={formatDate} />
+                )}
               </div>
 
               {/* Archivos adjuntos */}

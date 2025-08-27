@@ -28,17 +28,17 @@ const ActionButtons = ({ cobertura, showText = false, layout = 'horizontal', onR
         <button
           onClick={() => onPagar(cobertura)}
           className={`${layout === 'vertical' ? 'w-full ' : ''}inline-flex items-center ${buttonSize} text-xs font-medium text-center text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 hover:text-green-800 focus:ring-2 focus:outline-none focus:ring-green-200 transition-all duration-200 btn-accion`}
-          title="Pagar cobertura"
-          aria-label="Pagar cobertura"
+          title="Registro de Honorarios"
+          aria-label="Registrar honorarios"
         >
           <svg className={`${iconSize} mr-1`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-          <span className={textClass}>{showText ? 'Pagar Cobertura' : 'Pagar'}</span>
+          <span className={textClass}>{showText ? 'Reg. Honorarios' : 'Honorarios'}</span>
         </button>
       )}
       {estadoInfo.text === 'Aprobado' && yaPagado && (
         <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-200 text-green-900 border border-green-400 ml-2">
           <svg className="h-4 w-4 mr-1 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-          Pagado
+          Finalizada
         </span>
       )}
     </div>

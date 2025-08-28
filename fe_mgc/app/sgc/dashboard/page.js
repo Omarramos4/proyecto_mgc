@@ -11,6 +11,7 @@ import FloatingActionButton from '../../../componentes/FloatingActionButton';
 import { useSidebar } from '../../context/SidebarContext';
 import { useEffect, useState, useMemo} from 'react';
 import SucursalSelector from '../../../componentes/SucursalSelector';
+import PeriodoSelector from '../../../componentes/PeriodoSelector';
 import { useSucursalFilterMemo } from '../../hooks/useSucursalFilterMemo';
 import { useHonorariosChart } from '../../hooks/useHonorariosChart';
 import TablaUltimasCoberturas from '../../../componentes/TablaUltimasCoberturas';
@@ -88,6 +89,7 @@ export default function dashboard() {
       <div className="bg-gray-100 rounded p-2 mt-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <SucursalSelector selectedSucursal={selectedSucursal} setSelectedSucursal={setSelectedSucursal} />
+          <PeriodoSelector />
         </div>
       </div>
       <div className="grid grid-cols-1 mt-2 md:grid-cols-4 gap-4">
@@ -115,7 +117,7 @@ export default function dashboard() {
 
   <TablaUltimasCoberturas coberturas={coberturas} />
 
-      <div className="grid grid-cols-1 mt-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 mt-2 md:grid-cols-3 gap-4">
         <ChartComponent
           type="bar"
           data={honorariosData}
@@ -129,14 +131,6 @@ export default function dashboard() {
           type="bar"
           data={coberturasPorAreaData}
           title="Coberturas por Área"
-          loading={false}
-          error={null}
-          emptyMessage="No hay datos disponibles"
-        />
-        <ChartComponent
-          type="line"
-          data={coberturasPorSucursalData}
-          title="Coberturas por Mes"
           loading={false}
           error={null}
           emptyMessage="No hay datos disponibles"

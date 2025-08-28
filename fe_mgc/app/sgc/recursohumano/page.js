@@ -164,24 +164,21 @@ export default function RecursoHumano() {
           input: newEmployeeData
         }
       });
-      
       setShowAddModal(false);
-      
       // Mostrar notificación de éxito
       showNotification('Empleado agregado exitosamente', 'success', {
         title: '¡Empleado Agregado!',
         details: 'El nuevo empleado se ha registrado correctamente en el sistema'
       });
-      
       // Los datos se actualizarán automáticamente gracias a refetchQueries
       return Promise.resolve(data);
     } catch (error) {
+  // ...existing code...
       // Mostrar notificación de error
       showNotification('Error al agregar empleado. Verifique los datos e inténtelo nuevamente.', 'error', {
         title: '¡Error al Agregar Empleado!',
         details: 'Verifique que todos los datos estén correctos e inténtelo nuevamente'
       });
-      
       // Re-lanzar el error para que el modal pueda manejarlo
       throw error;
     }

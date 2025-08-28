@@ -155,14 +155,10 @@ const AddRHModal = ({ show, onClose, onSave }) => {
           DNI: formData.cedula,
           CtaBanco: formData.ctaBanco || null,
           Origen: formData.origen || null,
-          Estado: "1", // Estado automáticamente activo
+          Estado: "1", // Estado como string
           ID_Puesto: String(formData.puestoId),
           ID_Sucursal: String(formData.sucursalId)
         };
-
-        // LOGS para depuración
-        console.log('formData antes de guardar:', formData);
-        console.log('Input enviado a la mutación:', dataToSave);
 
         // Guardar en la base de datos usando la mutación
         const { data } = await createRecursoHumano({
@@ -171,17 +167,15 @@ const AddRHModal = ({ show, onClose, onSave }) => {
           }
         });
 
-        // Obtener el empleado creado (ajusta según la respuesta de tu API)
-        const empleadoCreado = data?.createRecursoHumano;
-        if (!empleadoCreado) throw new Error('No se pudo crear el empleado');
-
-        // Llamar al callback con el empleado creado
-        await onSave(empleadoCreado);
-
-        // Cerrar modal 
+        // Si se creó correctamente, solo actualiza la vista y muestra notificación
+        showNotification('Empleado agregado exitosamente', 'success', {
+          title: '¡Empleado Agregado!',
+          details: 'El nuevo empleado se ha registrado correctamente en el sistema'
+        });
+        if (onSave) await onSave(dataToSave);
         handleClose();
       } catch (error) {
-        console.error('Error al guardar empleado:', error);
+  // ...existing code...
         showNotification('Error al agregar empleado. Por favor, inténtelo nuevamente.', 'error', {
           title: '¡Error!',
           details: 'Revise los datos ingresados y la conexión al servidor'

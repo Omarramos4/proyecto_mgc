@@ -16,9 +16,9 @@ function TablaUltimasCoberturas({ coberturas = [] }) {
     }, [coberturas]);
 
     return (
-        <div className="mt-2 w-full flex flex-col items-center bg-gray-200 rounded-b-md p-5">
-            <div className="w-full flex items-center justify-between mb-2">
-                <p className="text-xl font-bold leading-none text-gray-800">Últimas Coberturas Realizadas</p>
+        <div className="mt-2 w-full flex flex-col items-center bg-gray-200 rounded-b-md p-3">
+            <div className="w-full flex items-center justify-between ">
+                <p className="text-lg font-semibold leading-none text-gray-800">Últimas Coberturas Realizadas</p>
                 <button
                     className="p-2 rounded focus:outline-none hover:bg-gray-300 transition"
                     onClick={() => setShowTable(v => !v)}

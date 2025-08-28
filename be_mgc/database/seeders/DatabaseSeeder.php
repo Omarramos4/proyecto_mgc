@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             ModalidadesSeeder::class,
             RolesSeeder::class,
             SucursalesSeeder::class,
+            FormatosSeeder::class,
             AreasSeeder::class,
             MotivosSeeder::class,
             ConfiguracionesSeeder::class,

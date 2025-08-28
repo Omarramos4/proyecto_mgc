@@ -51,6 +51,15 @@ type Sucursal @model(class: "App\\Models\\Sucursal") {
     recursosHumanos: [RecursoHumano!]! @hasMany(foreignKey: "ID_Sucursal")
 }
 
+type Formato @model(class: "App\\Models\\Formato") {
+    id: ID!
+    rutaArchivo: String!
+    descripcion: String!
+    id_sucursal: ID!
+
+    sucursal: Sucursal! @belongsTo(foreignKey: "id_sucursal")
+}
+
 type Rol @model(class: "App\\Models\\Rol") {
     id: ID!
     NombreRol: String!
@@ -168,6 +177,9 @@ type Query {
     sucursal(id: ID! @eq): Sucursal @find
     sucursales: [Sucursal!]! @field(resolver: "App\\GraphQL\\Queries\\SucursalesResolver")
 
+    formatos(id: ID! @eq): Formato @find
+    formatos: [Formato!]! @field(resolver: "App\\GraphQL\\Queries\\FormatosResolver")
+
     rol(id: ID! @eq): Rol @find
     roles: [Rol!]! @all
 
@@ -221,6 +233,10 @@ type Mutation {
     createSucursal(input: CreateSucursalInput! @spread): Sucursal @create
     updateSucursal(id: ID!, input: UpdateSucursalInput! @spread): Sucursal @update
     #deleteSucursal(id: ID!): Sucursal @delete
+
+    createFormato(input: CreateFormatoInput! @spread): Formato @create
+    updateFormato(id: ID!, input: UpdateFormatoInput! @spread): Formato @update
+    #deleteFormato(id: ID!): Formato @delete
 
     createRol(input: CreateRolInput! @spread): Rol @create
     updateRol(id: ID!, input: UpdateRolInput! @spread): Rol @update
@@ -321,6 +337,18 @@ input UpdateSucursalInput {
     ContactoPrincipal: String
     Telefono: String
     Estado: Int 
+}
+
+input CreateFormatoInput {
+    rutaArchivo: String!
+    descripcion: String!
+    id_sucursal: ID!
+}
+
+input UpdateFormatoInput {
+    rutaArchivo: String
+    descripcion: String
+    id_sucursal: ID
 }
 
 input CreateRolInput {

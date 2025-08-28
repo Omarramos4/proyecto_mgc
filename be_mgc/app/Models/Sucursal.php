@@ -30,6 +30,10 @@ class Sucursal extends Model
     {
         return $this->hasMany(Usuario::class,'ID_Sucursal');
     }
+    public function formatos()
+    {
+        return $this->hasMany(Formato::class,'id_sucursal');
+    }
 
     public function recursosHumanos()
     {

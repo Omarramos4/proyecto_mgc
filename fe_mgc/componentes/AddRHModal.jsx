@@ -145,6 +145,7 @@ const AddRHModal = ({ show, onClose, onSave }) => {
   }, [onClose, sucursalId]);
 
   const handleSave = useCallback(async () => {
+    if (isLoading) return; // Evita doble ejecución
     if (validateForm()) {
       setIsLoading(true);
       try {
@@ -172,10 +173,9 @@ const AddRHModal = ({ show, onClose, onSave }) => {
           title: '¡Empleado Agregado!',
           details: 'El nuevo empleado se ha registrado correctamente en el sistema'
         });
-        if (onSave) await onSave(dataToSave);
+  if (onSave && data?.createRecursoHumano) onSave(data.createRecursoHumano); // Pasa el objeto creado por la mutación
         handleClose();
       } catch (error) {
-  // ...existing code...
         showNotification('Error al agregar empleado. Por favor, inténtelo nuevamente.', 'error', {
           title: '¡Error!',
           details: 'Revise los datos ingresados y la conexión al servidor'

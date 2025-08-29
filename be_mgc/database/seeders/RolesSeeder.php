@@ -17,7 +17,6 @@ class RolesSeeder extends Seeder
             ['NombreRol' => 'Editor', 'Descripcion' => 'Usuario con permisos de lectura y gestión'],
             ['NombreRol' => 'Lector', 'Descripcion' => 'Usuario con permisos de lectura'],
             ['NombreRol' => 'Gerente', 'Descripcion' => 'Usuario con permisos de gerencia departamental'],
-            ['NombreRol' => 'Auditor', 'Descripcion' => 'Usuario con permisos de auditoría y revisión de registros']
 
         ]);
     }

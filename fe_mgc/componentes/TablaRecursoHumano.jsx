@@ -342,7 +342,7 @@ const TablaRecursoHumano = ({ datos = [], onEditar, onDeshabilitar, filterBySucu
               <thead className="bg-gray-50 dark:bg-gray-700 sticky top-0 z-[1]">
                 <tr>
                   <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400 w-12">
-                    ID
+                    #
                   </th>
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400 w-48">
                     Nombre Completo

@@ -13,7 +13,7 @@ class ConfiguracionesSeeder extends Seeder
      */
     public function run(): void
     {
-         DB::table('Configuraciones')->insert([
+        DB::table('Configuraciones')->insert([
             ['nombre' => 'ISR','valor'=>'12.5%', 'descripcion' =>'Impuesto sobre la Renta'],
             ['nombre' => 'ISS','valor'=>'1%', 'descripcion' =>'Impuesto sobre Salarios'],
         ]);

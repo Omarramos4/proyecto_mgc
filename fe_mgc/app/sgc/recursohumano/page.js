@@ -64,7 +64,6 @@ export default function RecursoHumano() {
     return transformedData;
   }, [recursosData, sucursalId]);
 
-  const [empleados, setEmpleados] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -73,24 +72,17 @@ export default function RecursoHumano() {
     setIsClient(true);
   }, []);
 
-  // Actualizar empleados cuando cambien los datos de la API
-  useEffect(() => {
-    if (isClient) {
-      setEmpleados(empleadosFromAPI);
-    }
-  }, [isClient, empleadosFromAPI]);
-
   // Filtrar empleados basado en el término de búsqueda
-  const empleadosFiltrados = empleados.filter(empleado => {
+  const empleadosFiltrados = empleadosFromAPI.filter(empleado => {
     const searchLower = searchTerm.toLowerCase();
     return (
-      empleado.nombre?.toLowerCase().includes(searchLower) ||
-      empleado.apellido?.toLowerCase().includes(searchLower) ||
-      empleado.cedula?.toLowerCase().includes(searchLower) ||
-      empleado.puesto?.toLowerCase().includes(searchLower) ||
-      empleado.departamento?.toLowerCase().includes(searchLower) ||
-      empleado.sucursal?.toLowerCase().includes(searchLower) ||
-      empleado.origen?.toLowerCase().includes(searchLower)
+      (typeof empleado.nombre === 'string' && empleado.nombre.toLowerCase().includes(searchLower)) ||
+      (typeof empleado.apellido === 'string' && empleado.apellido.toLowerCase().includes(searchLower)) ||
+      (typeof empleado.cedula === 'string' && empleado.cedula.toLowerCase().includes(searchLower)) ||
+      (typeof empleado.puesto === 'string' && empleado.puesto.toLowerCase().includes(searchLower)) ||
+      (typeof empleado.departamento === 'string' && empleado.departamento.toLowerCase().includes(searchLower)) ||
+      (typeof empleado.sucursal === 'string' && empleado.sucursal.toLowerCase().includes(searchLower)) ||
+      (typeof empleado.origen === 'string' && empleado.origen.toLowerCase().includes(searchLower))
     );
   });
 
@@ -116,11 +108,7 @@ export default function RecursoHumano() {
       await updateRecursoHumano({ variables });
       
       // Actualizar estado local para feedback inmediato
-      setEmpleados(prevEmpleados => 
-        prevEmpleados.map(emp => 
-          emp.id === empleadoEditado.id ? empleadoEditado : emp
-        )
-      );
+  // El estado local se elimina, la tabla se actualiza por Apollo
       
     } catch (error) {
       // TODO: Implementar manejo de errores apropiado para producción
@@ -140,11 +128,7 @@ export default function RecursoHumano() {
       await updateRecursoHumano({ variables });
       
       // Actualizar estado local para feedback inmediato
-      setEmpleados(prevEmpleados => 
-        prevEmpleados.map(emp => 
-          emp.id === empleado.id ? { ...emp, estado: "0" } : emp
-        )
-      );
+  // El estado local se elimina, la tabla se actualiza por Apollo
       
     } catch (error) {
       // TODO: Implementar manejo de errores apropiado para producción
@@ -158,30 +142,12 @@ export default function RecursoHumano() {
 
   // Función para guardar nuevo empleado
   const handleSaveNewEmployee = async (newEmployeeData) => {
-    try {
-      const { data } = await createRecursoHumano({
-        variables: {
-          input: newEmployeeData
-        }
-      });
-      setShowAddModal(false);
-      // Mostrar notificación de éxito
-      showNotification('Empleado agregado exitosamente', 'success', {
-        title: '¡Empleado Agregado!',
-        details: 'El nuevo empleado se ha registrado correctamente en el sistema'
-      });
-      // Los datos se actualizarán automáticamente gracias a refetchQueries
-      return Promise.resolve(data);
-    } catch (error) {
-  // ...existing code...
-      // Mostrar notificación de error
-      showNotification('Error al agregar empleado. Verifique los datos e inténtelo nuevamente.', 'error', {
-        title: '¡Error al Agregar Empleado!',
-        details: 'Verifique que todos los datos estén correctos e inténtelo nuevamente'
-      });
-      // Re-lanzar el error para que el modal pueda manejarlo
-      throw error;
-    }
+    setShowAddModal(false);
+    showNotification('Empleado agregado exitosamente', 'success', {
+      title: '¡Empleado Agregado!',
+      details: 'El nuevo empleado se ha registrado correctamente en el sistema'
+    });
+    if (typeof refetch === 'function') refetch();
   };
 
 

@@ -17,26 +17,26 @@ class UsuariosSeeder extends Seeder
             [
                 'NombreUsuario' => 'admin',
                 'NombreCompleto' => 'Administrador Sistema',
-                'Contrasenia' => Hash::make('admin123'),
+                'Contrasenia' => Hash::make('admin'),
                 'CorreoElectronico' => 'admin@empresa.com',
                 'ID_Rol' => 1,
                 'ID_sucursal' => 1,
                 'Estado' => 1
             ],
             [
-                'NombreUsuario' => 'mgonzalez',
-                'NombreCompleto' => 'María González Pérez',
+                'NombreUsuario' => 'benoni',
+                'NombreCompleto' => 'Ben Oni Benajamín Benguché',
                 'Contrasenia' => Hash::make('password123'),
-                'CorreoElectronico' => 'maria.gonzalez@empresa.com',
+                'CorreoElectronico' => 'benoni.benguche@empresa.com',
                 'ID_Rol' => 2,
                 'ID_sucursal' => 1,
                 'Estado' => 1
             ],
             [
-                'NombreUsuario' => 'cmendez',
-                'NombreCompleto' => 'Carlos Méndez López',
+                'NombreUsuario' => 'omarramos',
+                'NombreCompleto' => 'Omar Alejandro Ramos Cáceres',
                 'Contrasenia' => Hash::make('password123'),
-                'CorreoElectronico' => 'carlos.mendez@empresa.com',
+                'CorreoElectronico' => 'omar.ramos@empresa.com',
                 'ID_Rol' => 3,
                 'ID_sucursal' => 2,
                 'Estado' => 1
@@ -48,15 +48,6 @@ class UsuariosSeeder extends Seeder
                 'CorreoElectronico' => 'ana.lopez@empresa.com',
                 'ID_Rol' => 4,
                 'ID_sucursal' => 1,
-                'Estado' => 1
-            ],
-            [
-                'NombreUsuario' => 'rdiaz',
-                'NombreCompleto' => 'Roberto Díaz Hernández',
-                'Contrasenia' => Hash::make('password123'),
-                'CorreoElectronico' => 'roberto.diaz@empresa.com',
-                'ID_Rol' => 5,
-                'ID_sucursal' => 2,
                 'Estado' => 1
             ],
         ]);

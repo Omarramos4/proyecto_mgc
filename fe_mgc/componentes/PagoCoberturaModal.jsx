@@ -37,6 +37,25 @@ const PagoCoberturaModal = ({ show, onClose, cobertura: initialCobertura }) => {
   const { data: configData, loading: configLoading, error: configError } = useQuery(GET_CONFIGURACIONES);
   
   const [createHonorario, { loading: mutationLoading }] = useMutation(CREATE_HONORARIO, {
+    update: (cache, { data }) => {
+      // Si la mutación retorna el honorario creado
+      const nuevoHonorario = data?.createHonorario;
+      const coberturaId = initialCobertura?.id;
+      if (!nuevoHonorario || !coberturaId) return;
+      try {
+        cache.modify({
+          id: cache.identify({ __typename: 'Cobertura', id: coberturaId }),
+          fields: {
+            honorarios(existingHonorarios = []) {
+              // Agrega el nuevo honorario al array
+              return [...existingHonorarios, nuevoHonorario];
+            }
+          }
+        });
+      } catch (e) {
+        console.error('Error actualizando el cache de honorarios en cobertura:', e);
+      }
+    },
     onCompleted: () => {
       showNotification('success', 'Pago realizado', 'El pago se realizó correctamente', false);
       console.log('PagarCoberturaModal: Honorario creado con éxito.');

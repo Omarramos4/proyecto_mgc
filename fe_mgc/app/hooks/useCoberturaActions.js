@@ -5,7 +5,25 @@ import { UPDATE_COBERTURA, CREATE_ARCHIVO } from '../graphql/operations/cobertur
 export function useCoberturaActions(coberturaId, user, onClose) {
   const [notification, setNotification] = useState(null);
   const [notificationVisible, setNotificationVisible] = useState(false);
-  const [updateCobertura] = useMutation(UPDATE_COBERTURA);
+  const [updateCobertura] = useMutation(UPDATE_COBERTURA, {
+    update: (cache, { data }) => {
+      // Si la mutación retorna la cobertura actualizada
+      const coberturaActualizada = data?.updateCobertura;
+      if (!coberturaActualizada) return;
+      try {
+        cache.modify({
+          id: cache.identify({ __typename: 'Cobertura', id: coberturaActualizada.id }),
+          fields: {
+            Estado() {
+              return coberturaActualizada.Estado;
+            }
+          }
+        });
+      } catch (e) {
+        console.error('Error actualizando el cache de Estado de cobertura:', e);
+      }
+    }
+  });
   const [createArchivo] = useMutation(CREATE_ARCHIVO);
 
   const showNotification = useCallback((type, title, message, autoClose = true) => {

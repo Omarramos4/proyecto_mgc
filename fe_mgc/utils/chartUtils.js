@@ -1,4 +1,41 @@
 // Funciones utilitarias para procesar datos de los charts
+// Coberturas realizadas por mes (para chart tipo line)
+export function getCoberturasPorMes(coberturas) {
+  if (!coberturas || coberturas.length === 0) {
+    return {
+      labels: ['Sin datos'],
+      datasets: [{ label: 'Sin datos', data: [0], borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)' }],
+    };
+  }
+  // Agrupar por mes
+  const agrupadoPorMes = {};
+  coberturas.forEach(cobertura => {
+    const fecha = cobertura.FechaSolicitud || cobertura.fechaSolicitud;
+    if (!fecha) return;
+    const dateObj = new Date(fecha);
+    const mes = dateObj.toLocaleString('es-ES', { month: 'short', year: 'numeric' });
+    agrupadoPorMes[mes] = (agrupadoPorMes[mes] || 0) + 1;
+  });
+  const meses = Object.keys(agrupadoPorMes);
+  const cantidades = meses.map(m => agrupadoPorMes[m]);
+  return {
+    labels: meses,
+    datasets: [{
+      label: '',
+      data: cantidades,
+      borderColor: '#6366f1',
+      backgroundColor: 'rgba(99,102,241,0.1)',
+      borderWidth: 3,
+      fill: true,
+      tension: 0.4,
+      pointBackgroundColor: '#6366f1',
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2,
+      pointRadius: 6,
+      pointHoverRadius: 8,
+    }],
+  };
+}
 
 // Coberturas por Área
 export function getCoberturasPorArea(coberturas) {

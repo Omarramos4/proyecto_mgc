@@ -5,7 +5,7 @@ import "../../globals.css";
 //Componentes
 import Carddetails from '../../../componentes/Carddetails';
 import ChartComponent from '../../../componentes/ChartComponent';
-import { getCoberturasPorArea, getCoberturasPorSucursal, getHonorariosPorMes } from '../../../utils/chartUtils';
+import { getCoberturasPorArea, getCoberturasPorSucursal, getHonorariosPorMes, getCoberturasPorMes } from '../../../utils/chartUtils';
 import Header from '../../../componentes/Header';
 import FloatingActionButton from '../../../componentes/FloatingActionButton';
 import { useSidebar } from '../../context/SidebarContext';
@@ -18,7 +18,6 @@ import TablaUltimasCoberturas from '../../../componentes/TablaUltimasCoberturas'
 
 //DATOS
 import { useSuspenseQuery } from '@apollo/client';
-import { GET_PUESTOS } from '../../graphql/operations/catalogos';
 import { GET_COBERTURAS } from '../../graphql/operations/coberturas';
 
 // Prevent static generation since this page uses user-specific filters
@@ -31,19 +30,20 @@ export default function dashboard() {
   const [showWelcome, setShowWelcome] = useState(true);
 
   // Usar useSuspenseQuery para cargar datos en el cliente
-  const { data: puestosData } = useSuspenseQuery(GET_PUESTOS);
   const { data: coberturasData } = useSuspenseQuery(GET_COBERTURAS);
 
-  const puestos = useMemo(() => puestosData?.puestos || [], [puestosData]);
   const coberturas = useMemo(() => coberturasData?.coberturas || [], [coberturasData]);
-
-  // Hook para filtrado por sucursal (optimizado)
+  
+  // Hook para filtrado por sucursal
   const {
     selectedSucursal,
     setSelectedSucursal,
     estadisticas,
     filteredCoberturas
   } = useSucursalFilterMemo(coberturas);
+
+  // Chart de Coberturas realizadas por mes (line)
+  const coberturasPorMesData = useMemo(() => getCoberturasPorMes(filteredCoberturas), [filteredCoberturas]);
 
   //estadísticas memoizadas 
   const coberturasRealizadas = estadisticas.realizadas;
@@ -74,8 +74,8 @@ export default function dashboard() {
   // Chart de Coberturas por Área (bar)
   const coberturasPorAreaData = getCoberturasPorArea(filteredCoberturas);
 
-  // Chart de Coberturas por Sucursal (doughnut)
-  const coberturasPorSucursalData = getCoberturasPorSucursal(filteredCoberturas);
+  // Chart de Coberturas por Sucursal (doughnut) - mostrar todas las sucursales
+  const coberturasPorSucursalData = getCoberturasPorSucursal(coberturas);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowWelcome(false), 2500);
@@ -93,6 +93,7 @@ export default function dashboard() {
         </div>
       </div>
       <div className="grid grid-cols-1 mt-2 md:grid-cols-4 gap-4">
+        
         <Carddetails
           title="Coberturas Realizadas"
           text={coberturasRealizadas}
@@ -117,7 +118,8 @@ export default function dashboard() {
 
   <TablaUltimasCoberturas coberturas={coberturas} />
 
-      <div className="grid grid-cols-1 mt-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 mt-2 md:grid-cols-4 gap-4">
+      
         <ChartComponent
           type="bar"
           data={honorariosData}
@@ -143,6 +145,14 @@ export default function dashboard() {
           error={null}
           emptyMessage="No hay datos disponibles"
         />
+        <ChartComponent
+          type="line"
+          data={coberturasPorMesData}
+          title="Coberturas realizadas por mes"
+          loading={false}
+          error={null}
+          emptyMessage="No hay datos disponibles"
+        /> 
       </div>
 
       
